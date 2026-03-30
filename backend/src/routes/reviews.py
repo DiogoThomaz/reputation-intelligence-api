@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, Query
 from typing import List, Optional
 
@@ -30,8 +32,8 @@ def list_reviews(
                 id=str(it.id),
                 company_name="",
                 source=it.source,
-                sentiment="",
-                intent_tags=[],
+                sentiment=(it.sentiment or ""),
+                intent_tags=(json.loads(it.intent_tags) if it.intent_tags else []),
                 comment_text=it.text,
                 rating=it.rating,
                 date=it.date,

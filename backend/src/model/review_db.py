@@ -14,3 +14,7 @@ class Review(Base):
     date: Mapped[str] = mapped_column(String)
     author: Mapped[str] = mapped_column(String, nullable=True)
     text: Mapped[str] = mapped_column(Text)
+
+    sentiment: Mapped[str] = mapped_column(String, nullable=True)
+    intent_tags: Mapped[str] = mapped_column(Text, nullable=True)
+    ai_model: Mapped[str] = mapped_column(String, nullable=True)
