@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reputation Intelligence — MVP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg0:#070816;
+      --bg1:#0b1030;
+      --card: rgba(255,255,255,.06);
+      --stroke: rgba(255,255,255,.12);
+      --text:#e9ecff;
+      --muted:#a9b0e8;
+      --accent:#7c5cff;
+      --accent2:#27d3ff;
+      --good:#48f5b1;
+      --bad:#ff4d6d;
+      --mid:#ffd166;
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 15%, rgba(124,92,255,.30), transparent 60%),
+        radial-gradient(900px 600px at 85% 25%, rgba(39,211,255,.22), transparent 55%),
+        radial-gradient(900px 700px at 60% 90%, rgba(72,245,177,.16), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    .wrap{max-width:1100px;margin:0 auto;padding:38px 18px 56px}
+
+    header{
+      display:flex;align-items:flex-end;justify-content:space-between;gap:16px;
+      margin-bottom:22px;
+    }
+
+    .brand{display:flex;flex-direction:column;gap:6px}
+    .brand h1{margin:0;font-size:22px;letter-spacing:.6px;font-weight:600}
+    .brand p{margin:0;color:var(--muted);font-size:13px}
+
+    .chip{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      color:var(--muted);font-size:12px
+    }
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 4px rgba(39,211,255,.12)}
+
+    .grid{display:grid;grid-template-columns: 1.1fr .9fr;gap:14px}
+    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      padding:16px;
+    }
+
+    .card h2{margin:0 0 10px;font-size:14px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+
+    .form{display:grid;grid-template-columns: 1fr 1fr;gap:10px}
+    .form .row{grid-column:1 / -1}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input{
+      width:100%;padding:12px 12px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(10,12,28,.55);
+      color:var(--text);
+      outline:none;
+    }
+    input:focus{border-color:rgba(124,92,255,.55);box-shadow:0 0 0 4px rgba(124,92,255,.16)}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{
+      appearance:none;border:0;cursor:pointer;
+      padding:11px 14px;border-radius:12px;
+      color:var(--text);font-weight:600;font-size:13px;
+      background:linear-gradient(135deg,var(--accent), rgba(39,211,255,.65));
+      box-shadow:0 10px 28px rgba(124,92,255,.25);
+    }
+    button.secondary{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow:none;color:var(--muted)
+    }
+    button:disabled{opacity:.55;cursor:not-allowed}
+
+    .status{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 12px;border-radius:12px;
+      background:rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.10);
+      margin-top:12px
+    }
+    .status small{color:var(--muted)}
+
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    @media(max-width:600px){.kpis{grid-template-columns:1fr}}
+    .kpi{padding:12px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+    .kpi .v{font-size:18px;font-weight:600}
+    .kpi .l{font-size:12px;color:var(--muted)}
+
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:10px;max-height:520px;overflow:auto;padding-right:4px}
+    .item{
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.05);
+      padding:12px
+    }
+    .item .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .badge{font-size:11px;color:var(--muted)}
+    .pill{display:inline-flex;gap:6px;align-items:center;padding:5px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-size:11px}
+    .sent.pos{border-color:rgba(72,245,177,.35);color:rgba(72,245,177,.95)}
+    .sent.neu{border-color:rgba(255,209,102,.35);color:rgba(255,209,102,.95)}
+    .sent.neg{border-color:rgba(255,77,109,.35);color:rgba(255,77,109,.95)}
+
+    .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .tag{font-size:11px;color:var(--muted);padding:4px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16)}
+    .txt{margin-top:8px;color:#e6e9ff;font-size:13px;line-height:1.35;white-space:pre-wrap}
+
+    .footer{margin-top:18px;color:rgba(255,255,255,.45);font-size:12px}
+    a{color:rgba(39,211,255,.9)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>Reputation Intelligence</h1>
+        <p>MVP — Play Store + IA (Ollama) • atualiza em tempo real</p>
+      </div>
+      <div class="chip"><span class="dot"></span>API <span id="apiBaseLabel"></span></div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Nova pesquisa</h2>
+
+        <div class="form" id="form">
+          <div class="row">
+            <label>Nome da empresa</label>
+            <input id="companyName" placeholder="Nubank" value="Nubank" />
+          </div>
+
+          <div>
+            <label>Play Store App ID</label>
+            <input id="appId" placeholder="com.nu.production" value="com.nu.production" />
+          </div>
+
+          <div>
+            <label>Max reviews</label>
+            <input id="maxReviews" type="number" min="1" max="200" value="30" />
+          </div>
+
+          <div class="actions row">
+            <button id="btnStart">Iniciar pesquisa</button>
+            <button id="btnStop" class="secondary" disabled>Parar atualização</button>
+            <button id="btnClear" class="secondary">Limpar</button>
+          </div>
+        </div>
+
+        <div class="status" id="statusBox" style="display:none">
+          <div>
+            <div style="font-weight:600" id="statusTitle">Processando…</div>
+            <small id="statusSub">Aguardando…</small>
+          </div>
+          <div class="pill" id="searchIdPill" title="Search ID">—</div>
+        </div>
+
+        <div class="kpis" id="kpis" style="display:none">
+          <div class="kpi"><div class="v" id="kTotal">0</div><div class="l">Total coletado</div></div>
+          <div class="kpi"><div class="v" id="kPS">0</div><div class="l">Play Store</div></div>
+          <div class="kpi"><div class="v" id="kUpdated">—</div><div class="l">Última atualização</div></div>
+        </div>
+
+        <div class="footer">
+          Dica: se estiver rodando local, habilite CORS no backend ou sirva esta página por um server no mesmo host.
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Resultados</h2>
+        <div class="list" id="list"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
