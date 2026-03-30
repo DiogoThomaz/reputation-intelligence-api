@@ -1,6 +1,6 @@
 (() => {
   // ajuste se necessário
-  const API_BASE = (new URLSearchParams(location.search).get('api') || 'http://localhost:8000').replace(/\/$/, '');
+  const API_BASE = (new URLSearchParams(location.search).get('api') || 'http://187.127.3.91:8000').replace(/\/$/, '');
   document.getElementById('apiBaseLabel').textContent = API_BASE;
 
   const el = (id) => document.getElementById(id);
