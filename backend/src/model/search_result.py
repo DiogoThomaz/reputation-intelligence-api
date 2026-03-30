@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Any, Dict, List
 
-from app.schemas.review import ReviewItem
+from .review import ReviewItem
 
 
 class SearchResultResponse(BaseModel):

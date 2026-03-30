@@ -1,11 +1,11 @@
 from fastapi import APIRouter
 
-from app.schemas.dashboard import DashboardResponse
+from ..model.dashboard import DashboardResponse
 
 router = APIRouter()
 
 
-@router.get("/{search_id}", response_model=DashboardResponse)
+@router.get("/dashboard/{search_id}", response_model=DashboardResponse)
 def get_dashboard(search_id: str):
     return {
         "search_id": search_id,

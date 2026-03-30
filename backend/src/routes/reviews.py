@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Query
 from typing import List, Optional
 
-from app.schemas.review import ReviewItem
+from ..model.review import ReviewItem
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ReviewItem])
+@router.get("/reviews", response_model=List[ReviewItem])
 def list_reviews(
     search_id: str = Query(...),
     source: Optional[str] = Query(None),
