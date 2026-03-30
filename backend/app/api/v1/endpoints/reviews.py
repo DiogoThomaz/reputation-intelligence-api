@@ -13,5 +13,4 @@ def list_reviews(
     sentiment: Optional[str] = Query(None),
     tag: Optional[str] = Query(None),
 ):
-    # MVP: sem persistência real ainda
     return []

@@ -1,7 +1,6 @@
-"""DEPRECATED.
+"""DEPRECATED entrypoint.
 
-Use `uvicorn app.main:app`.
-Este arquivo existe apenas para não quebrar referências antigas.
+Run with: `uvicorn app.main:app` (from `backend/`).
 """
 
 from app.main import app  # noqa: F401
