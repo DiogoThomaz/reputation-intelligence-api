@@ -14,3 +14,11 @@ uvicorn src.app:app --reload --port 8000
 
 Docs:
 - http://localhost:8000/docs
+
+## Playwright (para coleta web)
+
+Instale os browsers:
+
+```bash
+python3 -m playwright install chromium
+```
