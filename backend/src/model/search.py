@@ -15,6 +15,8 @@ class Search(Base):
 
 class SearchCreateRequest(BaseModel):
     company_name: str
+    playstore_app_id: str | None = None
+    max_reviews: int = 50
 
 
 class SearchCreateResponse(BaseModel):

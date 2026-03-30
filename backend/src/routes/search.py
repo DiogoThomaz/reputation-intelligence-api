@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..db import Base, engine
@@ -6,6 +6,7 @@ from ..model.search import SearchCreateRequest, SearchCreateResponse
 from ..model.search_result import SearchResultResponse
 from ..repository.search_repo import SqlAlchemySearchRepository
 from ..service.search_service import create_search, get_search
+from ..service.background_jobs import collect_playstore_reviews
 from .deps import get_db
 
 router = APIRouter()
@@ -13,9 +14,13 @@ repo = SqlAlchemySearchRepository()
 
 
 @router.post("/search", response_model=SearchCreateResponse)
-def create(req: SearchCreateRequest, db: Session = Depends(get_db)):
+def create(req: SearchCreateRequest, background: BackgroundTasks, db: Session = Depends(get_db)):
     Base.metadata.create_all(bind=engine)
     sid = create_search(db, repo, req.company_name)
+
+    if req.playstore_app_id:
+        background.add_task(collect_playstore_reviews, sid, req.playstore_app_id, req.max_reviews)
+
     return {"search_id": sid, "status": "processing"}
 
 
