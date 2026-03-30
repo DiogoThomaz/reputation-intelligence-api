@@ -81,17 +81,38 @@ def search_playstore(
         except Exception:
             pass
 
-        # desce até a área de avaliações (o site muda; usamos heurística)
-        page.mouse.wheel(0, random.randint(800, 1400))
-        _jitter_sleep()
+        # 1) Clica em "Ver todas as avaliações" (fluxo atual da Play Store)
+        btn = None
+        for label in ("Ver todas as avaliações", "See all reviews", "See all ratings"):
+            loc = page.get_by_role("button", name=label)
+            if loc.count() > 0:
+                btn = loc.first
+                break
 
+        if not btn:
+            loc = page.locator("text=Ver todas as avaliações")
+            if loc.count() > 0:
+                btn = loc.first
+
+        if not btn:
+            context.close()
+            browser.close()
+            return
+
+        btn.scroll_into_view_if_needed(timeout=10_000)
+        _jitter_sleep()
+        btn.click(timeout=10_000)
+        _jitter_sleep(0.8, 1.8)
+
+        # 2) Coleta no overlay/dialog de avaliações e vai scrollando para carregar mais
         yielded = 0
         seen = set()
 
-        # heurística: cards de review geralmente têm aria-label com "Avaliado em" / "Rated"
-        # fallback: pega todos elementos que parecem conter texto + estrelas.
-        for _ in range(60):  # loop de scroll/carregamento
-            cards = page.locator("css=div:has(span[aria-label*='star'])")
+        dialog = page.get_by_role("dialog")
+        container = dialog.first if dialog.count() > 0 else page
+
+        for _ in range(120):
+            cards = container.locator("css=div:has(span[aria-label*='star'])")
             count = cards.count()
 
             for i in range(count):
@@ -100,10 +121,9 @@ def search_playstore(
 
                 card = cards.nth(i)
                 try:
-                    text = card.locator("css=span").all_inner_texts()
-                    full_text = "\n".join([t.strip() for t in text if t.strip()])
+                    text_parts = card.locator("css=span").all_inner_texts()
+                    full_text = "\n".join([t.strip() for t in text_parts if t.strip()])
 
-                    # rating
                     rating_el = card.locator("css=span[aria-label*='star']").first
                     aria = rating_el.get_attribute("aria-label") or ""
                     rating = 0
@@ -112,13 +132,11 @@ def search_playstore(
                             rating = int(d)
                             break
 
-                    # date (best-effort)
                     date = ""
                     date_loc = card.locator("css=span:has-text('202')")
                     if date_loc.count() > 0:
                         date = date_loc.first.inner_text().strip()
 
-                    # author (best-effort)
                     author = None
                     author_loc = card.locator("css=div[role='heading'], css=span[role='heading']")
                     if author_loc.count() > 0:
@@ -148,9 +166,8 @@ def search_playstore(
             if yielded >= max_reviews:
                 break
 
-            # scroll para carregar mais
-            page.mouse.wheel(0, random.randint(1200, 2200))
-            _jitter_sleep(0.4, 1.6)
+            container.mouse.wheel(0, random.randint(1600, 2600))
+            _jitter_sleep(0.5, 1.7)
 
         context.close()
         browser.close()
