@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # override if needed
+      # DATABASE_URL: "sqlite:///./app.db"
+      # OLLAMA_BASE_URL: "http://187.127.3.91:32768"
+      # OLLAMA_MODEL: "qwen2.5:3b-instruct"
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./backend/app.db:/app/backend/app.db
+    restart: unless-stopped
