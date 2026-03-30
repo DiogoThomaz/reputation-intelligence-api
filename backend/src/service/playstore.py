@@ -54,6 +54,7 @@ def search_playstore(
             at = r.get("at")
             date = at.date().isoformat() if hasattr(at, "date") else str(at or "")
 
+            print ("comment", r.get("content") or "")
             yield PlayStoreReview(
                 source="play_store",
                 app_id=app_id,

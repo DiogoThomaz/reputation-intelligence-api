@@ -65,14 +65,19 @@ def classify_text(text: str) -> Tuple[str, List[str]]:
             data = r.json()
             content = data.get("response", "")
 
-    obj = _parse_json(content)
-    sentiment = str(obj.get("sentiment", "")).strip().lower()
-    tags = obj.get("intent_tags") or []
-    if not isinstance(tags, list):
-        tags = []
-    tags = [str(t).strip() for t in tags if str(t).strip()]
+    try:
+        obj = _parse_json(content)
+        sentiment = str(obj.get("sentiment", "")).strip().lower()
+        tags = obj.get("intent_tags") or []
+        if not isinstance(tags, list):
+            tags = []
+        tags = [str(t).strip() for t in tags if str(t).strip()]
 
-    if sentiment not in {"positivo", "neutro", "negativo"}:
-        sentiment = "neutro"
+        if sentiment not in {"positivo", "neutro", "negativo"}:
+            sentiment = "neutro"
 
-    return sentiment, tags
+        return sentiment, tags
+    except Exception as e:
+        print("Error parsing Ollama response:", e)
+        print("Original content:", content)
+        return "n/a", []
