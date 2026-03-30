@@ -1,10 +1,12 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy import func, select
 
 from ..db import Base, engine
 from ..model.search import SearchCreateRequest, SearchCreateResponse
 from ..model.search_result import SearchResultResponse
 from ..repository.search_repo import SqlAlchemySearchRepository
+from ..model.review_db import Review
 from ..service.search_service import create_search, get_search
 from ..service.background_jobs import collect_playstore_reviews
 from .deps import get_db
@@ -31,10 +33,16 @@ def get(search_id: str, db: Session = Depends(get_db)):
     if not s:
         raise HTTPException(status_code=404, detail="search not found")
 
+    total = db.scalar(select(func.count()).select_from(Review).where(Review.search_id == s.id)) or 0
+    by_source_rows = db.execute(
+        select(Review.source, func.count()).where(Review.search_id == s.id).group_by(Review.source)
+    ).all()
+    by_source = {src: cnt for (src, cnt) in by_source_rows}
+
     return {
         "search_id": s.id,
         "status": s.status,
         "company_name": s.company_name,
-        "summary": {"total_items": 0, "by_source": {}, "by_sentiment": {}},
+        "summary": {"total_items": int(total), "by_source": by_source, "by_sentiment": {}},
         "items": [],
     }
