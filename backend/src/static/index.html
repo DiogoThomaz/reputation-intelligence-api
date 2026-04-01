@@ -192,7 +192,36 @@
       </section>
 
       <section class="card">
-        <h2>Resultados</h2>
+        <h2>Dashboard</h2>
+        <div id="dash" style="display:none">
+          <div class="kpis" style="margin-top:0">
+            <div class="kpi"><div class="v" id="dStatus">—</div><div class="l">Status</div></div>
+            <div class="kpi"><div class="v" id="dRisk">—</div><div class="l">Risk score</div></div>
+            <div class="kpi"><div class="v" id="dNegPct">—</div><div class="l">% Negativo (janela)</div></div>
+          </div>
+
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="kpi"><div class="v" id="dPosPct">—</div><div class="l">% Positivo</div></div>
+            <div class="kpi"><div class="v" id="dNeuPct">—</div><div class="l">% Neutro</div></div>
+          </div>
+
+          <div style="margin-top:14px">
+            <h2 style="margin:14px 0 10px">Top 3 negativos</h2>
+            <div class="list" id="negList" style="max-height:260px"></div>
+          </div>
+
+          <div style="margin-top:14px">
+            <h2 style="margin:14px 0 10px">Top 3 positivos</h2>
+            <div class="list" id="posList" style="max-height:260px"></div>
+          </div>
+
+          <div style="margin-top:14px">
+            <h2 style="margin:14px 0 10px">Top tags</h2>
+            <div class="tags" id="topTags"></div>
+          </div>
+        </div>
+
+        <h2 style="margin-top:18px">Reviews (amostra)</h2>
         <div class="list" id="list"></div>
       </section>
     </div>
