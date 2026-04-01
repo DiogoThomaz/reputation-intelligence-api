@@ -21,7 +21,11 @@ def collect_playstore_reviews(search_id: str, app_id: str, max_reviews: int) -> 
         reviews = list(search_playstore(app_id, max_reviews=max_reviews))
 
         items = [{"id": str(i), "text": r.text} for i, r in enumerate(reviews)]
-        batches = chunk_items(items, max_items=10, max_chars=1000)
+        batches = chunk_items(
+            items,
+            max_items=settings.ollama_batch_max_items,
+            max_chars=settings.ollama_batch_max_chars,
+        )
 
         idx = 0
         for b in batches:
