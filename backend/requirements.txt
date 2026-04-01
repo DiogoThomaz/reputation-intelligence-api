@@ -4,3 +4,4 @@ pydantic==2.10.5
 SQLAlchemy==2.0.36
 google-play-scraper==1.2.7
 httpx==0.28.1
+pandas==2.2.3
