@@ -9,6 +9,16 @@
   const btnClear = el('btnClear');
   const list = el('list');
 
+  const dash = el('dash');
+  const dStatus = el('dStatus');
+  const dRisk = el('dRisk');
+  const dNegPct = el('dNegPct');
+  const dPosPct = el('dPosPct');
+  const dNeuPct = el('dNeuPct');
+  const negList = el('negList');
+  const posList = el('posList');
+  const topTags = el('topTags');
+
   const statusBox = el('statusBox');
   const statusTitle = el('statusTitle');
   const statusSub = el('statusSub');
@@ -40,6 +50,72 @@
     if (s === 'positivo') return 'pos';
     if (s === 'negativo') return 'neg';
     return 'neu';
+  }
+
+  function pct(v) {
+    if (v === null || v === undefined || Number.isNaN(Number(v))) return '—';
+    return `${Math.round(Number(v) * 100)}%`;
+  }
+
+  function renderInsightList(container, insights) {
+    container.innerHTML = '';
+    for (const ins of (insights || [])) {
+      const div = document.createElement('div');
+      div.className = 'item';
+
+      const sev = ins.severity || 'low';
+      const pillClass = sev === 'high' ? 'neg' : (sev === 'medium' ? 'neu' : 'pos');
+
+      const ex = Array.isArray(ins.examples) ? ins.examples : [];
+
+      div.innerHTML = `
+        <div class="top">
+          <div>
+            <div style="font-weight:600">${(ins.title || ins.primary_tag || '').replace(/</g,'&lt;')}</div>
+            <div class="badge">tag: ${ins.primary_tag || ''} • volume: ${ins.evidence?.count ?? 0} • neg: ${pct(ins.evidence?.negative_pct)} • share: ${pct(ins.evidence?.pct)}</div>
+          </div>
+          <div class="pill sent ${pillClass}">${sev}</div>
+        </div>
+        <div class="txt" style="opacity:.9">${ex[0]?.text ? ex[0].text.replace(/</g,'&lt;') : ''}</div>
+      `;
+      container.appendChild(div);
+    }
+
+    if (!container.childElementCount) {
+      const empty = document.createElement('div');
+      empty.className = 'item';
+      empty.innerHTML = `<div class="badge">Sem dados ainda.</div>`;
+      container.appendChild(empty);
+    }
+  }
+
+  function renderDashboard(d) {
+    if (!d || !d.summary) {
+      dash.style.display = 'none';
+      return;
+    }
+
+    dash.style.display = 'block';
+
+    dStatus.textContent = d.summary.overall_status || '—';
+    dRisk.textContent = (d.summary.risk_score ?? '—');
+
+    const s = d.summary.sentiment || {};
+    dPosPct.textContent = pct(s.positivo?.pct);
+    dNeuPct.textContent = pct(s.neutro?.pct);
+    dNegPct.textContent = pct(s.negativo?.pct);
+
+    renderInsightList(negList, d.top_negative_insights);
+    renderInsightList(posList, d.top_positive_insights);
+
+    topTags.innerHTML = '';
+    const tags = d.breakdowns?.top_tags || [];
+    for (const t of tags) {
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.textContent = `${t.tag} • ${Math.round((t.pct || 0) * 100)}% • neg ${Math.round((t.negative_pct || 0) * 100)}%`;
+      topTags.appendChild(span);
+    }
   }
 
   function renderItems(items) {
@@ -85,6 +161,14 @@
     kTotal.textContent = total;
     kPS.textContent = bySource.play_store || 0;
     kUpdated.textContent = fmtTime();
+
+    // dashboard
+    try {
+      const d = await api(`/dashboard/${encodeURIComponent(searchId)}`);
+      renderDashboard(d);
+    } catch (err) {
+      dash.style.display = 'none';
+    }
 
     // items
     const items = await api(`/reviews?search_id=${encodeURIComponent(searchId)}&source=play_store`);
