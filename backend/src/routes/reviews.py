@@ -34,6 +34,7 @@ def list_reviews(
                 source=it.source,
                 sentiment=(it.sentiment or ""),
                 intent_tags=(json.loads(it.intent_tags) if it.intent_tags else []),
+                product_tags=(json.loads(it.product_tags) if getattr(it, "product_tags", None) else []),
                 comment_text=it.text,
                 rating=it.rating,
                 date=it.date,

@@ -6,6 +6,7 @@ from typing import List, Tuple
 import httpx
 
 from ..settings import settings
+from .tag_normalizer import normalize_tag_list
 
 
 def _parse_json(s: str) -> dict:
@@ -72,6 +73,7 @@ def classify_text(text: str) -> Tuple[str, List[str]]:
         if not isinstance(tags, list):
             tags = []
         tags = [str(t).strip() for t in tags if str(t).strip()]
+        tags = normalize_tag_list(tags, max_items=4)
 
         if sentiment not in {"positivo", "neutro", "negativo"}:
             sentiment = "neutro"
