@@ -30,5 +30,7 @@ def get_dashboard(search_id: str, db: Session = Depends(get_db)):
             "top_tags": r.top_tags,
             "tag_by_sentiment": r.tag_by_sentiment,
             "time_series": r.time_series,
+            "top_products": getattr(r, "top_products", []),
+            "product_by_sentiment": getattr(r, "product_by_sentiment", {}),
         },
     }

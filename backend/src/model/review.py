@@ -8,6 +8,7 @@ class ReviewItem(BaseModel):
     source: str
     sentiment: str
     intent_tags: List[str]
+    product_tags: List[str] = []
     comment_text: str
     rating: Optional[int] = None
     date: str

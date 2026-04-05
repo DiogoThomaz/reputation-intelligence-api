@@ -18,6 +18,7 @@
   const negList = el('negList');
   const posList = el('posList');
   const topTags = el('topTags');
+  const topProducts = el('topProducts');
 
   const statusBox = el('statusBox');
   const statusTitle = el('statusTitle');
@@ -116,6 +117,16 @@
       span.textContent = `${t.tag} • ${Math.round((t.pct || 0) * 100)}% • neg ${Math.round((t.negative_pct || 0) * 100)}%`;
       topTags.appendChild(span);
     }
+
+    topProducts.innerHTML = '';
+    const prods = d.breakdowns?.top_products || [];
+    for (const p of prods) {
+      const span = document.createElement('span');
+      span.className = 'tag';
+      span.style.borderColor = 'rgba(39,211,255,.25)';
+      span.textContent = `${p.tag} • ${Math.round((p.pct || 0) * 100)}% • neg ${Math.round((p.negative_pct || 0) * 100)}%`;
+      topProducts.appendChild(span);
+    }
   }
 
   function renderItems(items) {
@@ -127,6 +138,8 @@
       const sent = (it.sentiment || 'neutro').toLowerCase();
       const tags = Array.isArray(it.intent_tags) ? it.intent_tags : [];
 
+      const products = Array.isArray(it.product_tags) ? it.product_tags : [];
+
       div.innerHTML = `
         <div class="top">
           <div class="badge">${it.source || ''} • ${it.date || ''} • ⭐ ${it.rating ?? ''}</div>
@@ -135,6 +148,11 @@
         <div class="tags">
           ${tags.map(t => `<span class="tag">${t}</span>`).join('')}
         </div>
+        ${products.length ? `
+          <div class="tags">
+            ${products.map(p => `<span class="tag" style="border-color:rgba(39,211,255,.25)">${p}</span>`).join('')}
+          </div>
+        ` : ''}
         <div class="txt">${(it.comment_text || '').replace(/</g,'&lt;')}</div>
       `;
       list.appendChild(div);

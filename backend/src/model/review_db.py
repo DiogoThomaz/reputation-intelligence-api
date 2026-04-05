@@ -17,4 +17,5 @@ class Review(Base):
 
     sentiment: Mapped[str] = mapped_column(String, nullable=True)
     intent_tags: Mapped[str] = mapped_column(Text, nullable=True)
+    product_tags: Mapped[str] = mapped_column(Text, nullable=True)
     ai_model: Mapped[str] = mapped_column(String, nullable=True)

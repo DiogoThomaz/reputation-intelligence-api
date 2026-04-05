@@ -83,6 +83,8 @@ class DashboardBreakdowns(BaseModel):
     top_tags: List[TopTagItem]
     tag_by_sentiment: Dict[str, Dict[str, int]]
     time_series: List[TimeSeriesPoint]
+    top_products: List[TopTagItem] = []
+    product_by_sentiment: Dict[str, Dict[str, int]] = {}
 
 
 class DashboardResponse(BaseModel):
