@@ -7,6 +7,7 @@ import pandas as pd
 from sqlalchemy.orm import Session
 
 from ..model.review_db import Review
+from .dashboard_products import compute_product_breakdowns
 
 
 @dataclass
@@ -132,6 +133,7 @@ def build_dashboard(db: Session, search_id: str, window_days: int = 30) -> Dashb
                 "date": _parse_date(r.date),
                 "sentiment": _norm_sentiment(r.sentiment),
                 "intent_tags": _safe_json_list(r.intent_tags),
+                "product_tags": _safe_json_list(getattr(r, "product_tags", None)),
                 "text": r.text,
             }
             for r in rows
@@ -325,7 +327,12 @@ def build_dashboard(db: Session, search_id: str, window_days: int = 30) -> Dashb
     risk = int(round(min(100.0, max(0.0, (cur_neg_pct * 100.0) * 0.8 + max(0.0, neg_trend["delta"]) * 100.0 * 0.2))))
     overall_status = _status_from_risk(risk)
 
-    return DashboardResult(
+    prod = compute_product_breakdowns(current_df)
+
+    # attach to breakdowns by storing on the result object (kept as dicts)
+    # We'll pass through via routes.
+
+    res = DashboardResult(
         period_start=period_start,
         period_end=period_end,
         total_reviews=total,
@@ -340,3 +347,9 @@ def build_dashboard(db: Session, search_id: str, window_days: int = 30) -> Dashb
         top_negative_insights=top_negative_insights,
         top_positive_insights=top_positive_insights,
     )
+
+    # dynamic attrs (simple for now)
+    setattr(res, "top_products", prod.get("top_products", []))
+    setattr(res, "product_by_sentiment", prod.get("product_by_sentiment", {}))
+
+    return res
